@@ -1,0 +1,26 @@
+{
+  "name": "counterfeit-rfid-car",
+  "version": "1.0.0",
+  "description": "Smart contract for rfid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web3",
+    "blockchain",
+    "smart",
+    "contract",
+    "ethereum",
+    "hardhat"
+  ],
+  "author": "Pranav Raj",
+  "license": "ISC",
+  "dependencies": {
+    "hardhat": "^2.14.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "dotenv": "^16.0.3"
+  }
+}
