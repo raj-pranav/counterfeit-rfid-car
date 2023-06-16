@@ -6,28 +6,31 @@ import "hardhat/console.sol";
 
 contract RFID {
 
-    // Array to store all VINs used where iterations is required
+    // Array to store all VINs :> used where iterations is required
     uint32 [] VINs ;
 
     // Structure to create a product blueprint with all fields
     struct Product {
-        string modelName;
-        uint32 modelYear;
-        string codeInfo;
-        string [] rfids;
+        string modelName;   // store mdoelName
+        uint32 modelYear;   // Store modelyear
+        string codeInfo;    // Store codeinfo
+        string [] rfids;    // store all rfids belongs to that vehicle 
     }
 
-    // Mapping for VIN number and Product
-    mapping(uint32 => Product) Products ;
-    mapping(uint32 => bool) VIN_HASHMAP ;  // to save gas cost while searching for vin
+    // Mapping
+    mapping(uint32 vin => Product vehicle) Products ;   // for VIN number and Product
+    mapping(uint32 vin => bool exist_or_notExists) VIN_HASHMAP ;  // To check if vin exists or not :> to save gas cost while searching for vin
 
-    // Events for various purpose
-    event added_newVIN(uint32 indexed vin);
-    event rfid_updated(uint32 indexed _vin, string indexed _old_rfid, string indexed _new_rfid);
+    // Events
+    event added_newVIN(uint32 indexed vin); // when new VIN is created
+    event rfid_updated(uint32 indexed _vin, string indexed _old_rfid, string indexed _new_rfid);  // incase a new rfid replaces existing old one
     
 
     // VIN Format: YYYYMMxxxxx e.g-> 202303100
     function add_VINfo(uint32 _vin, string memory _modelname, uint32 _modelyear, string memory _code, string[] memory _rfids) external {
+        /* Description : add_VINfo
+           Input: accepts a vin number, modelname, modelyear, codeinfo, and array of rfids associated with the vehicle
+        */
         if (VIN_HASHMAP[_vin] != true) {   // avoid redundant storage of same vin
             Product memory _prod = Product({modelName : _modelname,
                                             modelYear : _modelyear ,
