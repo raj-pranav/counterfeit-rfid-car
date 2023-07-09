@@ -17,27 +17,62 @@ contract RFID {
         string [] rfids;    // store all rfids belongs to that vehicle 
     }
 
+    // Admins and account to perform priviledged operations
+    address public deployer ;  // or owner
+
     // Mapping
-    mapping(uint32 vin => Product vehicle) Products ;   // for VIN number and Product
-    mapping(uint32 vin => bool exist_or_notExists) VIN_HASHMAP ;  // To check if vin exists or not :> to save gas cost while searching for vin
+    mapping(uint32 vin   => Product vehicle) Products ;             // mapping rvery VIN number to Product
+    mapping(uint32 vin   => bool exist_or_notExists) VIN_HASHMAP ;  // To check if vin exists or not :> to save gas cost while searching for vin
+    mapping(address uAdd => uint8 empID) addressTOempID ;         // Mapping for address to employee Id
+
+    constructor(uint8 _empID) {
+        deployer = msg.sender;                // deployer is the owner
+        addressTOempID[msg.sender] = _empID;  // add deployer/owner to the mapping
+    }
+
+    // Modifiers
+    // Check for valid empID
+    modifier validEmpId(uint8 _empID) {
+        require(_empID >= 1, "Not a valid emp ID");
+        _;
+    }
+    // Check for valid eth address
+    modifier validAddress(address _addr) {
+        require(_addr != address(0), "This is NOT a valid address");
+        _;
+    }
+    // check if address is owner/deployer
+    modifier isOwner() {
+        require(msg.sender == deployer, "You are Not the Owner");
+        _;
+    }
+
+    // check if given address is owner/deployer OR admin
+    modifier ownerORadmin () {
+        require(addressTOempID[msg.sender] >= 1, "Neither Owner nor Admin");
+        _;
+    }
+
 
     // Events
     event added_newVIN(uint32 indexed vin); // when new VIN is created
     event rfid_updated(uint32 indexed _vin, string indexed _old_rfid, string indexed _new_rfid);  // incase a new rfid replaces existing old one
     
 
-    // VIN Format: YYYYMMxxxxx e.g-> 202303100
     function add_VINfo(uint32 _vin, string memory _modelname, uint32 _modelyear, string memory _code, string[] memory _rfids) external {
-        /* Description : add_VINfo
+        /* Description : add_VINfo | Visibility - External, will always be called from outside
            Input: accepts a vin number, modelname, modelyear, codeinfo, and array of rfids associated with the vehicle
+                  Please use VIN Format:> YYYYMMxxxxx e.g-> 202303100
+           Output: No return value, just an event indicating a new VIN added
         */
+        // ToDo: who can call this function
         if (VIN_HASHMAP[_vin] != true) {   // avoid redundant storage of same vin
             Product memory _prod = Product({modelName : _modelname,
                                             modelYear : _modelyear ,
                                             codeInfo  : _code,
                                             rfids     : _rfids});
             Products[_vin] = _prod;
-            VINs.push(_vin);            // add vin to array
+            VINs.push(_vin);            // add vin to VINs array
             VIN_HASHMAP[_vin] = true ;  // hash table for vin to quickly search for availability
             emit added_newVIN(_vin);
         }
